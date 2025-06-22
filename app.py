@@ -73,6 +73,33 @@ with st.container():
     ]
     budget_df = pd.DataFrame(budget_data)
 
+    # Interactive Pie Chart with Plotly
+    chart_col, table_col = st.columns([1, 2])
+    with chart_col:
+        st.markdown("#### 🥧 Allocation Pie Chart (Hover for details)")
+
+        fig = px.pie(
+            budget_df,
+            values='Amount',
+            names='Category',
+            color='Category',
+            color_discrete_map={row["Category"]: row["Color"] for _, row in budget_df.iterrows()},
+            hole=0.4,
+        )
+        fig.update_traces(textinfo='percent+label', textposition='inside', textfont_size=12)
+        fig.update_layout(margin=dict(t=0, b=0, l=0, r=0), height=300, width=300, paper_bgcolor='rgba(0,0,0,0)')
+        st.plotly_chart(fig, use_container_width=True)
+
+    with table_col:
+        st.markdown("#### 💸 Budget Breakdown")
+        st.dataframe(
+            budget_df[["Category", "Amount", "Percent"]].style.format({
+                "Amount": "${:,.2f}",
+                "Percent": "{:.1f}%",
+            }),
+            use_container_width=True
+        )
+
     # ===== Savings Goal Tracker =====
     st.header("🎯 Savings Goal Tracker")
 
@@ -184,33 +211,6 @@ with st.container():
     growth_df = pd.DataFrame({"Month": list(range(months + 1)), "Balance": balances})
 
     st.line_chart(growth_df.set_index("Month")["Balance"])
-
-    # Interactive Pie Chart with Plotly
-    chart_col, table_col = st.columns([1, 2])
-    with chart_col:
-        st.markdown("#### 🥧 Allocation Pie Chart (Hover for details)")
-
-        fig = px.pie(
-            budget_df,
-            values='Amount',
-            names='Category',
-            color='Category',
-            color_discrete_map={row["Category"]: row["Color"] for _, row in budget_df.iterrows()},
-            hole=0.4,
-        )
-        fig.update_traces(textinfo='percent+label', textposition='inside', textfont_size=12)
-        fig.update_layout(margin=dict(t=0, b=0, l=0, r=0), height=300, width=300, paper_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig, use_container_width=True)
-
-    with table_col:
-        st.markdown("#### 💸 Budget Breakdown")
-        st.dataframe(
-            budget_df[["Category", "Amount", "Percent"]].style.format({
-                "Amount": "${:,.2f}",
-                "Percent": "{:.1f}%",
-            }),
-            use_container_width=True
-        )
 
 # ===== Investment Calculator =====
 st.header("📈 Investment Growth Calculator")
